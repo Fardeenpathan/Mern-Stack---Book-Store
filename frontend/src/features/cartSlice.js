@@ -1,0 +1,73 @@
+import { createSlice } from '@reduxjs/toolkit'
+
+const initialState = {
+  cartItems : [],
+  totalQuantity: 0,
+  totalPrice: 0,
+}
+
+export const cartSlice = createSlice({
+  name:'cart', 
+  initialState,
+  reducers: {
+     addToCart(state, action){
+      let find = state.cartItems.findIndex((cartItems) => cartItems.id === action.payload.id);
+      if (find >= 0) {
+  state.cartItems[find].quantity += 1 ;
+      } else {
+        state.cartItems.push({...action.payload, quantity: 1});
+      }
+     
+     },
+
+     getCartTotal: (state) => {
+      let { totalQuantity, totalPrice } = state.cartItems.reduce(
+        (cartTotal, cartItem) => {
+          console.log("carttotal", cartTotal);
+          console.log("cartitem", cartItem);
+          const { price, quantity } = cartItem;
+          console.log(price, quantity);
+          const itemTotal = price * quantity;
+          cartTotal.totalPrice += itemTotal;
+          cartTotal.totalQuantity += quantity;
+          return cartTotal;
+        },
+        {
+          totalPrice: 0,
+          totalQuantity: 0,
+        }
+      );
+      state.totalPrice = parseInt(totalPrice.toFixed(2));
+      state.totalQuantity = totalQuantity;
+    },
+
+  removeItem : (state, action) => {
+    state.cartItems = state.cartItems.filter((item)=> item.id !== action.payload);
+  },
+
+  increaseItemQuantity : (state, action) =>{
+   state.cartItems = state.cartItems.map((item) => {
+    if(item.id === action.payload){
+      return { ...item, quantity: item.quantity + 1 };
+      return item;
+    }
+   } );
+  },
+
+  decreaseItemQuantity : (state, action) =>{
+    state.cartItems = state.cartItems.map((item) => {
+     if(item.id === action.payload){
+       return { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : item.quantity  };
+       return item;
+     }
+    } )
+   }
+
+  },
+ })
+
+ export const { addToCart, getCartTotal, removeItem, increaseItemQuantity, decreaseItemQuantity } = cartSlice.actions;
+
+ export default cartSlice.reducer
+
+
